@@ -1,7 +1,8 @@
+import QRCode from 'qrcode';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchDashboardOrders, updateOrderStatus, logout, toggleRestaurant } from '../api';
-import { IconBell, IconClock, IconMenu, IconStore, IconUser } from '../components/Icons';
+import { IconBell, IconClock, IconLink, IconMenu, IconStore, IconUser } from '../components/Icons';
 
 function playNotificationSound() {
   try {
@@ -41,8 +42,38 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [estimatedMinutes, setEstimatedMinutes] = useState({});
   const [toggling, setToggling] = useState(false);
+  const [showQR, setShowQR] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
   const prevPendingCount = useRef(0);
   const isFirstLoad = useRef(true);
+
+  const menuUrl = restaurant?.slug
+    ? `${window.location.origin}/${restaurant.slug}`
+    : '';
+
+  async function openQR() {
+    if (!qrDataUrl && menuUrl) {
+      const url = await QRCode.toDataURL(menuUrl, {
+        width: 512,
+        margin: 2,
+        color: { dark: '#000000', light: '#ffffff' },
+      });
+      setQrDataUrl(url);
+    }
+    setShowQR(true);
+  }
+
+  function downloadQR() {
+    if (!qrDataUrl) return;
+    const a = document.createElement('a');
+    a.href = qrDataUrl;
+    a.download = `qrcode-${restaurant.slug}.png`;
+    a.click();
+  }
+
+  function copyLink() {
+    navigator.clipboard.writeText(menuUrl);
+  }
 
   async function handleLogout() {
     await logout();
@@ -163,6 +194,13 @@ export default function DashboardPage() {
                 }`}
               >
                 {isOpen ? 'Ouvert' : 'Ferme'}
+              </button>
+              <button
+                onClick={openQR}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium hover:bg-emerald-100 transition-colors"
+              >
+                <IconLink className="w-3.5 h-3.5" />
+                QR Code
               </button>
               <Link
                 to="/dashboard/menu"
@@ -307,6 +345,62 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {showQR && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowQR(false)}>
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-gray-900 text-center mb-1">
+              QR Code de votre restaurant
+            </h2>
+            <p className="text-sm text-gray-500 text-center mb-5">
+              Vos clients scannent pour voir le menu et commander
+            </p>
+
+            {qrDataUrl && (
+              <div className="flex justify-center mb-5">
+                <div className="bg-white p-3 rounded-xl border-2 border-gray-100">
+                  <img src={qrDataUrl} alt="QR Code" className="w-52 h-52" />
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 mb-5">
+              <span className="text-xs text-gray-600 truncate flex-1 font-mono">{menuUrl}</span>
+              <button
+                onClick={copyLink}
+                className="text-xs text-emerald-600 font-semibold hover:text-emerald-700 whitespace-nowrap"
+              >
+                Copier
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={downloadQR}
+                className="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-semibold text-sm hover:bg-emerald-700 transition-colors"
+              >
+                Telecharger le QR
+              </button>
+              <button
+                onClick={() => {
+                  const text = `Commandez en ligne chez ${restaurant.name} !\n${menuUrl}`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                }}
+                className="flex-1 bg-[#25D366] text-white py-3 rounded-xl font-semibold text-sm hover:bg-[#20bd5a] transition-colors"
+              >
+                Partager WhatsApp
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowQR(false)}
+              className="w-full mt-3 text-sm text-gray-400 hover:text-gray-600 py-2"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
