@@ -6,8 +6,9 @@ backend/venv/
 backend/db.sqlite3
 backend/media/
 
-# Build output
-backend/staticfiles/
+# Build output (keep frontend build, ignore Django collectstatic)
+backend/staticfiles/*
+!backend/staticfiles/frontend/
 
 # Node
 frontend/node_modules/
