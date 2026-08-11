@@ -13,7 +13,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if not settings.DEBUG:
     urlpatterns += [
-        re_path(r'^(?!api/|admin/|static/|media/).*$',
+        re_path(r'^(?!api/|admin(?:/|$)|static/|media/).*$',
                 TemplateView.as_view(template_name='index.html'),
                 name='frontend'),
     ]
