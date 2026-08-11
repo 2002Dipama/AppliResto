@@ -30,7 +30,7 @@ export default function HomePage() {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0">
             <img
-              src="/images/hero-food.jpg"
+              src={`${import.meta.env.BASE_URL}images/hero-food.jpg`}
               alt="Plat africain"
               className="w-full h-full object-cover"
             />
