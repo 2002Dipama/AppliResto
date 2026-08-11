@@ -46,6 +46,9 @@ export default function OrderPage() {
         customer_phone: phone,
         items: cartItems.map((i) => ({ menu_item: i.id, quantity: i.quantity })),
       });
+      const saved = JSON.parse(localStorage.getItem('myOrders') || '[]');
+      saved.unshift({ code: order.pickup_code, restaurant: restaurant?.name, date: new Date().toISOString() });
+      localStorage.setItem('myOrders', JSON.stringify(saved.slice(0, 10)));
       navigate(`/track/${order.pickup_code}`);
     } catch (err) {
       setError(err.message);
