@@ -89,6 +89,7 @@ export default function MenuManagePage() {
       formData.append('description', form.description);
       formData.append('price', parseInt(form.price) || 0);
       formData.append('category', form.category);
+      formData.append('is_available', form.is_available ? 'true' : 'false');
       if (imageFile) {
         formData.append('image', imageFile);
       }
