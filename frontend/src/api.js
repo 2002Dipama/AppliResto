@@ -43,6 +43,12 @@ export async function fetchDashboardOrders() {
   return authFetch(`${API}/dashboard/orders/`);
 }
 
+export async function toggleRestaurant() {
+  return authFetch(`${API}/dashboard/toggle/`, {
+    method: 'POST',
+  });
+}
+
 export async function updateOrderStatus(orderId, data) {
   return authFetch(`${API}/dashboard/orders/${orderId}/`, {
     method: 'PATCH',
@@ -59,4 +65,25 @@ export async function login(username, password) {
   });
   if (!res.ok) throw new Error('Identifiants incorrects');
   return res.json();
+}
+
+export async function logout() {
+  const res = await fetch('/api/auth/logout/', {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Erreur');
+  return res.json();
+}
+
+export async function register(data) {
+  const res = await fetch('/api/auth/register/', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || "Erreur lors de l'inscription");
+  return json;
 }

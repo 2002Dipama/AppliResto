@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { createOrder } from '../api';
+import { IconArrowLeft, IconCheck } from '../components/Icons';
 
 export default function OrderPage() {
   const { slug } = useParams();
@@ -15,12 +16,12 @@ export default function OrderPage() {
 
   if (!cart || !items) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">Aucune commande en cours.</p>
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="text-center animate-fade-in">
+          <p className="text-gray-900 font-semibold mb-2">Aucune commande en cours</p>
           <button
             onClick={() => navigate(`/${slug}`)}
-            className="text-orange-500 font-medium"
+            className="text-emerald-600 font-semibold hover:text-emerald-700"
           >
             Retour au menu
           </button>
@@ -55,81 +56,114 @@ export default function OrderPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-3">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="text-gray-500 text-2xl"
+            className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
           >
-            &larr;
+            <IconArrowLeft className="w-4 h-4" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Votre commande</h1>
+          <div>
+            <h1 className="font-bold text-gray-900 text-sm">Confirmer la commande</h1>
+            <p className="text-xs text-gray-400">{restaurant?.name}</p>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
-          <h2 className="font-semibold text-gray-700 mb-3">Récapitulatif</h2>
-          {cartItems.map((item) => (
-            <div key={item.id} className="flex justify-between py-2 border-b last:border-0">
-              <span className="text-gray-800">
-                {item.quantity}x {item.name}
-              </span>
-              <span className="text-gray-600">
-                {(item.price * item.quantity).toLocaleString('fr-FR')} FCFA
-              </span>
-            </div>
-          ))}
-          <div className="flex justify-between pt-3 font-bold text-lg">
-            <span>Total</span>
-            <span className="text-orange-600">
-              {total.toLocaleString('fr-FR')} FCFA
+      <main className="max-w-lg mx-auto px-4 py-5 animate-fade-in">
+        <div className="bg-white rounded-xl border border-gray-100 mb-4">
+          <div className="px-4 py-3 border-b border-gray-50">
+            <h2 className="font-semibold text-gray-900 text-sm">Votre commande</h2>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {cartItems.map((item) => (
+              <div key={item.id} className="px-4 py-3 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <span className="w-6 h-6 bg-emerald-50 text-emerald-700 rounded flex items-center justify-center text-xs font-bold">
+                    {item.quantity}
+                  </span>
+                  <span className="text-gray-800 text-sm">{item.name}</span>
+                </div>
+                <span className="text-gray-600 text-sm font-medium">
+                  {(item.price * item.quantity).toLocaleString('fr-FR')} F
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="px-4 py-3 border-t border-gray-100 flex justify-between items-center">
+            <span className="font-semibold text-gray-900">Total</span>
+            <span className="font-bold text-gray-900 text-lg">
+              {total.toLocaleString('fr-FR')} F
             </span>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-4 shadow-sm">
-          <h2 className="font-semibold text-gray-700 mb-3">Vos coordonnées</h2>
-
-          <div className="mb-4">
-            <label className="block text-sm text-gray-600 mb-1">Votre nom</label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Amadou Ouédraogo"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100">
+          <div className="px-4 py-3 border-b border-gray-50">
+            <h2 className="font-semibold text-gray-900 text-sm">Vos coordonnees</h2>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm text-gray-600 mb-1">
-              Numéro de téléphone
-            </label>
-            <input
-              type="tel"
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Ex: 70 12 34 56"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+          <div className="p-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Votre nom</label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex: Amadou Ouedraogo"
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-gray-900 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Numero de telephone
+              </label>
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Ex: 70 12 34 56"
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-gray-900 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
           </div>
 
-          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+          {error && (
+            <div className="mx-4 mb-4 bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold text-lg disabled:opacity-50"
-          >
-            {submitting ? 'Envoi en cours...' : 'Confirmer la commande'}
-          </button>
+          <div className="p-4 pt-0">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-emerald-600 text-white py-3.5 rounded-lg font-semibold disabled:opacity-50 hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+            >
+              {submitting ? (
+                <span className="inline-flex items-center gap-2">
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Envoi en cours...
+                </span>
+              ) : (
+                <>
+                  <IconCheck className="w-4 h-4" />
+                  Confirmer — {total.toLocaleString('fr-FR')} F
+                </>
+              )}
+            </button>
 
-          <p className="text-xs text-gray-400 mt-3 text-center">
-            Paiement sur place (espèces ou mobile money)
-          </p>
+            <p className="text-xs text-gray-400 mt-3 text-center">
+              Paiement sur place (especes ou mobile money)
+            </p>
+          </div>
         </form>
       </main>
     </div>
