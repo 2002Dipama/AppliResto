@@ -71,12 +71,13 @@ export default function HomePage() {
                   <IconStore className="w-5 h-5" />
                   Inscrire mon restaurant
                 </Link>
-                <a
-                  href="#comment-ca-marche"
+                <Link
+                  to="/explore"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-white font-semibold bg-white/15 backdrop-blur-sm rounded-xl hover:bg-white/25 transition-colors text-base"
                 >
-                  Comment ca marche ?
-                </a>
+                  <IconSearch className="w-5 h-5" />
+                  Explorer les restaurants
+                </Link>
               </div>
             </div>
           </div>

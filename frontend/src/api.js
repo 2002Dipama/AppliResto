@@ -1,5 +1,11 @@
 const API = '/api';
 
+export async function fetchRestaurants() {
+  const res = await fetch(`${API}/restaurants/`);
+  if (!res.ok) throw new Error('Erreur de chargement');
+  return res.json();
+}
+
 export async function fetchMenu(slug) {
   const res = await fetch(`${API}/${slug}/menu/`);
   if (!res.ok) throw new Error('Restaurant introuvable');

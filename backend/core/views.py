@@ -1,3 +1,4 @@
+from django.db import models
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -11,6 +12,26 @@ from .serializers import (
     OrderSerializer,
     UpdateOrderStatusSerializer,
 )
+
+
+@api_view(['GET'])
+def restaurant_list(request):
+    restaurants = Restaurant.objects.annotate(
+        dish_count=models.Count('menu_items', filter=models.Q(menu_items__is_available=True))
+    ).filter(dish_count__gt=0).order_by('-is_open', 'name')
+
+    data = []
+    for r in restaurants:
+        first_image = r.menu_items.filter(is_available=True, image__isnull=False).exclude(image='').first()
+        data.append({
+            'name': r.name,
+            'slug': r.slug,
+            'address': r.address,
+            'is_open': r.is_open,
+            'dish_count': r.dish_count,
+            'image': request.build_absolute_uri(first_image.image.url) if first_image and first_image.image else None,
+        })
+    return Response(data)
 
 
 @api_view(['GET'])
