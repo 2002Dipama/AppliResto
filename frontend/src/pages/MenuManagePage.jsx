@@ -23,6 +23,8 @@ export default function MenuManagePage() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => { loadMenu(); }, []);
@@ -78,30 +80,42 @@ export default function MenuManagePage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('name', form.name);
-    formData.append('description', form.description);
-    formData.append('price', parseInt(form.price));
-    formData.append('category', form.category);
-    formData.append('is_available', form.is_available);
-    if (imageFile) {
-      formData.append('image', imageFile);
-    }
+    setSubmitError(null);
+    setSubmitting(true);
 
-    const url = editItem
-      ? `/api/dashboard/menu/${editItem.id}/`
-      : '/api/dashboard/menu/create/';
-    const method = editItem ? 'PATCH' : 'POST';
+    try {
+      const formData = new FormData();
+      formData.append('name', form.name);
+      formData.append('description', form.description);
+      formData.append('price', parseInt(form.price) || 0);
+      formData.append('category', form.category);
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
 
-    const res = await fetch(url, {
-      method,
-      credentials: 'include',
-      body: formData,
-    });
+      const url = editItem
+        ? `/api/dashboard/menu/${editItem.id}/`
+        : '/api/dashboard/menu/create/';
+      const method = editItem ? 'PATCH' : 'POST';
 
-    if (res.ok) {
-      resetForm();
-      loadMenu();
+      const res = await fetch(url, {
+        method,
+        credentials: 'include',
+        body: formData,
+      });
+
+      if (res.ok) {
+        resetForm();
+        loadMenu();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        const msg = data.detail || Object.values(data).flat().join(', ') || `Erreur ${res.status}`;
+        setSubmitError(msg);
+      }
+    } catch {
+      setSubmitError('Erreur reseau. Verifiez votre connexion.');
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -306,12 +320,18 @@ export default function MenuManagePage() {
                   className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 />
               </div>
+              {submitError && (
+                <div className="bg-red-50 text-red-700 text-sm px-3 py-2 rounded-lg">
+                  {submitError}
+                </div>
+              )}
               <div className="flex gap-2 pt-1">
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
                 >
-                  {editItem ? 'Enregistrer' : 'Ajouter'}
+                  {submitting ? 'Envoi...' : editItem ? 'Enregistrer' : 'Ajouter'}
                 </button>
                 <button
                   type="button"
